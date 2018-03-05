@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            *:hover, *:selected {
+                outline: none;
+            }
+
+            #main {
+                width: 273px;
+                display: flex;
+                justify-content: space-between;
+                font-weight: bold;
+                font-size: 12px;
+                position: relative;
+            }
+
+            label {
+                padding: 2px;
+            }
+
+            #currency {
+                border: 1px solid #a9a9a9;
+                width: 66px;
+                border-radius: 2px;
+            }
+
+            #save {
+                border: 1px solid #ccc;
+                background-color: #ececec;
+                padding: 4px 14px;
+                border-radius: 2px;
+                transition: all .2s ease;
+                cursor: pointer;
+            }
+
+            #save:hover {
+                background-color: #f5f3c6;
+                border-color: #333333;
+            }
+
+            #message {
+                color: #186105;
+                font-size: 11px;
+                font-weight: bold;
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="main">
+            <label for="currency">Choose your currency:</label>
+            <select id="currency"></select>
+            <button id="save">Save</button>
+        </div>
+        <div id="message">Saved!</div>
+        <script type="text/javascript" src="popup.js"></script>
+    </body>
+</html>
