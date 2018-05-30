@@ -3,7 +3,7 @@
     "name": "Amazon Local Currency",
     "description": "Display Amazon prices in your local currency.",
     "author": "Yossi Frances",
-    "version": "0.2",
+    "version": "0.3",
     "icons": {
         "16": "icons/16.png",
         "32": "icons/32.png",
