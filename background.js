@@ -6,33 +6,51 @@ var _remoteActions = {
 };
 
 // Helpers
-function jx(url, callback) {
+function jx(url, xml, callback) {
+    if (typeof xml === 'function') {
+        callback = xml;
+        xml = false;
+    }
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            callback(xmlhttp.responseText);
+            callback(xml ? xmlhttp.responseXML : xmlhttp.responseText);
         }
-    }
-    xmlhttp.open("GET", url, true);
+    };
+    xmlhttp.open('GET', url, true);
     xmlhttp.send();
 }
 
-function jxp(url, params, callback) {
+function jxp(url, params, xml, callback) {
+    if (typeof xml === 'function') {
+        callback = xml;
+        xml = false;
+    }
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            callback(xmlhttp.responseText);
+            callback(xml ? xmlhttp.responseXML : xmlhttp.responseText);
         }
-    }
-    xmlhttp.open("POST", url, true);
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    };
+    xmlhttp.open('POST', url, true);
+    xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xmlhttp.send(params);
 }
 
-function needUpdate(date) {
+function needUpdate(value) {
+    var lastUpdate = new Date(value.lastUpdate);
+    var lastCheck = new Date(value.lastCheck);
     var today = new Date();
-    date.setHours(16, 0, 0, 0);
-    return today < date || (today - date) / 1000 / 60 / 60 > 24;
+
+    //console.log('check: ', today, lastCheck, lastUpdate);
+
+    if (today < lastUpdate) {
+        return true;
+    } else {
+        var hourDiff = (today - lastCheck) / (60 * 60 * 1000);
+        //console.log(hourDiff);
+        return hourDiff > 4;
+    }
 }
 // --
 
@@ -44,10 +62,12 @@ function getExchange(cb, renew) {
                 getExchange(cb, true);
             } else {
                 var v = items.exchange;
-                if (v.date) {
-                    if (!needUpdate(new Date(v.date))) {
+                if (v.lastUpdate && v.lastCheck) {
+                    if (!needUpdate(v)) {
+                        //console.log('NO UPDATE');
                         cb(v);
                     } else {
+                        //console.log('UPDATING');
                         getExchange(cb, true);
                     }
                 } else {
@@ -56,14 +76,46 @@ function getExchange(cb, renew) {
             }
         });
     } else {
-        jx('https://api.fixer.io/latest?base=USD', function (resp) {
-            var obj = JSON.parse(resp);
+        jx('http://www.boi.org.il/currency.xml', true, function (resp) {
+            var now = new Date();
+            var obj = {
+                lastUpdate: new Date(resp.getElementsByTagName('LAST_UPDATE')[0].textContent + ' ' + now.getHours() + ':' + now.getMinutes()).getTime(),
+                lastCheck: now.getTime(),
+                ILS: {
+                    name: 'Israeli New Shekel',
+                    value: 1,
+                    unit: 1
+                }
+            };
+            var elements = resp.getElementsByTagName('CURRENCY');
+            for (var i = 0; i < elements.length; i++) {
+                var e = new XmlElementParser(elements[i]);
+                obj[e.getNodeValue('CURRENCYCODE')] = {
+                    name: e.getNodeValue('NAME'),
+                    value: +e.getNodeValue('RATE'),
+                    unit: +e.getNodeValue('UNIT')
+                };
+            }
+            //console.log('NEW: ', obj);
             chrome.storage.sync.set({ 'exchange': obj }, function () {
                 cb(obj);
             });
         });
     }
 }
+
+function XmlElementParser(xmlElement) {
+    this.xmlElement = xmlElement;
+}
+
+XmlElementParser.prototype.getNodeValue = function (nodeName) {
+    var e = this.xmlElement.getElementsByTagName(nodeName);
+    if (e && e.length > 0) {
+        return e[0].textContent;
+    } else {
+        return null;
+    }
+};
 
 function getSettings(cb) {
     chrome.storage.sync.get('settings', function (items) {

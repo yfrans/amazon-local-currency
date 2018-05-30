@@ -31,8 +31,8 @@ function ready() {
         return;
     }
 
-    for (var currency in _exchange.rates) {
-        if (!_exchange.rates.hasOwnProperty(currency)) {
+    for (var currency in _exchange) {
+        if (!_exchange.hasOwnProperty(currency) || currency.length !== 3) {
             continue;
         }
 

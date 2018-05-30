@@ -1,10 +1,11 @@
 var _exchange = null;
-var _formats = {"USD":{"name":"US Dollar","fractionSize":2,"symbol":{"grapheme":"$","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"$","template":"$1","rtl":false}},"AUD":{"name":"Australian Dollar","fractionSize":2,"symbol":{"grapheme":"$","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"A$","template":"$1","rtl":false}},"BGN":{"name":"Bulgarian Lev","fractionSize":2,"symbol":{"grapheme":"лв","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"лв","template":"$1","rtl":false}},"BRL":{"name":"Brazilian Real","fractionSize":2,"symbol":{"grapheme":"R$","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"R$","template":"$1","rtl":false}},"CAD":{"name":"Canadian Dollar","fractionSize":2,"symbol":{"grapheme":"$","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"CA$","template":"$1","rtl":false}},"CHF":{"name":"Swiss Franc","fractionSize":2,"symbol":null,"uniqSymbol":null},"CNY":{"name":"Yuan Renminbi","fractionSize":2,"symbol":{"grapheme":"元","template":"1 $","rtl":false},"uniqSymbol":{"grapheme":"元","template":"1 $","rtl":false}},"CZK":{"name":"Czech Koruna","fractionSize":2,"symbol":{"grapheme":"Kč","template":"1 $","rtl":false},"uniqSymbol":{"grapheme":"Kč","template":"1 $","rtl":false}},"DKK":{"name":"Danish Krone","fractionSize":2,"symbol":{"grapheme":"kr","template":"1 $","rtl":false},"uniqSymbol":null},"EUR":{"name":"Euro","fractionSize":2,"symbol":{"grapheme":"€","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"€","template":"$1","rtl":false}},"GBP":{"name":"Pound Sterling","fractionSize":2,"symbol":{"grapheme":"£","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"£","template":"$1","rtl":false}},"HKD":{"name":"Hong Kong Dollar","fractionSize":2,"symbol":{"grapheme":"$","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"HK$","template":"$1","rtl":false}},"HRK":{"name":"Croatian Kuna","fractionSize":2,"symbol":{"grapheme":"kn","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"kn","template":"$1","rtl":false}},"HUF":{"name":"Forint","fractionSize":0,"symbol":{"grapheme":"Ft","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"Ft","template":"$1","rtl":false}},"IDR":{"name":"Rupiah","fractionSize":2,"symbol":{"grapheme":"Rp","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"Rp","template":"$1","rtl":false}},"ILS":{"name":"New Israeli Sheqel","fractionSize":2,"symbol":{"grapheme":"₪","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"₪","template":"$1","rtl":false}},"INR":{"name":"Indian Rupee","fractionSize":2,"symbol":{"grapheme":"₹","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"₹","template":"$1","rtl":false}},"ISK":{"name":"Iceland Krona","fractionSize":2,"symbol":{"grapheme":"kr","template":"$1","rtl":false},"uniqSymbol":null},"JPY":{"name":"Yen","fractionSize":0,"symbol":{"grapheme":"¥","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"¥","template":"$1","rtl":false}},"KRW":{"name":"Won","fractionSize":0,"symbol":{"grapheme":"₩","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"₩","template":"$1","rtl":false}},"MXN":{"name":"Mexican Peso","fractionSize":2,"symbol":{"grapheme":"$","template":"$1","rtl":false},"uniqSymbol":null},"MYR":{"name":"Malaysian Ringgit","fractionSize":2,"symbol":{"grapheme":"RM","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"RM","template":"$1","rtl":false}},"NOK":{"name":"Norwegian Krone","fractionSize":2,"symbol":{"grapheme":"kr","template":"1 $","rtl":false},"uniqSymbol":null},"NZD":{"name":"New Zealand Dollar","fractionSize":2,"symbol":{"grapheme":"$","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"NZ$","template":"$1","rtl":false}},"PHP":{"name":"Philippine Peso","fractionSize":2,"symbol":{"grapheme":"₱","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"₱","template":"$1","rtl":false}},"PLN":{"name":"Zloty","fractionSize":2,"symbol":{"grapheme":"zł","template":"1 $","rtl":false},"uniqSymbol":{"grapheme":"zł","template":"1 $","rtl":false}},"RON":{"name":"New Romanian Leu","fractionSize":2,"symbol":{"grapheme":"lei","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"lei","template":"$1","rtl":false}},"RUB":{"name":"Russian Ruble","fractionSize":2,"symbol":{"grapheme":"₽","template":"1 $","rtl":false},"uniqSymbol":{"grapheme":"₽","template":"1 $","rtl":false}},"SEK":{"name":"Swedish Krona","fractionSize":2,"symbol":{"grapheme":"kr","template":"1 $","rtl":false},"uniqSymbol":null},"SGD":{"name":"Singapore Dollar","fractionSize":2,"symbol":{"grapheme":"$","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"S$","template":"$1","rtl":false}},"THB":{"name":"Baht","fractionSize":2,"symbol":{"grapheme":"฿","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"฿","template":"$1","rtl":false}},"TRY":{"name":"Turkish Lira","fractionSize":2,"symbol":{"grapheme":"₺","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"₺","template":"$1","rtl":false}},"ZAR":{"name":"Rand","fractionSize":2,"symbol":{"grapheme":"R","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"R","template":"$1","rtl":false}}};
+var _formats = {"USD":{"name":"US Dollar","fractionSize":2,"symbol":{"grapheme":"$","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"$","template":"$1","rtl":false}},"EUR":{"name":"Euro","fractionSize":2,"symbol":{"grapheme":"€","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"€","template":"$1","rtl":false}},"GBP":{"name":"Pound Sterling","fractionSize":2,"symbol":{"grapheme":"£","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"£","template":"$1","rtl":false}},"ILS":{"name":"New Israeli Sheqel","fractionSize":2,"symbol":{"grapheme":"₪","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"₪","template":"$1","rtl":false}}};
 var _myCurrency = null;
 var _handlingPage = false;
 var _ourDataAttribute = 'data-price-convert';
-var _keyByGrapheme = { '$': 'USD' };
+var _keyByGrapheme = {};//{ '₪': 'ILS', '$': 'USD' };
 var _currencyRegex = [];
+
 for (var format in _formats) {
     if (!_formats.hasOwnProperty(format)) {
         continue;
@@ -17,12 +18,11 @@ for (var format in _formats) {
         var g = _formats[format].symbol.grapheme;
         if (!/\w/.test(g) && _currencyRegex.indexOf(g) === -1) {
             _currencyRegex.push('\\' + g);
-            if (g !== '$') {
-                _keyByGrapheme[g] = format;
-            }
+            _keyByGrapheme[g] = format;
         }
     }
 }
+
 _currencyRegex = new RegExp(_currencyRegex.join('|'));
 
 var _checks = [
@@ -86,6 +86,7 @@ function getItemPageElement() {
 }
 
 function handleTotalPage(e) {
+    console.debug('total page');
     if (!elementHandled(e)) {
         var row = getParentElement(e, 'tr');
         var price = extractPrice(e);
@@ -94,7 +95,7 @@ function handleTotalPage(e) {
             var newRow = document.createElement('tr');
             var valueCell = document.createElement('td');
             valueCell.setAttribute('colspan', '2');
-            valueCell.style = 'color: #505050; font-weight: bold; text-align: right;';
+            valueCell.style = 'color: #505050 !important; font-weight: bold !important; text-align: right !important;';
             valueCell.innerHTML = formatPrice(price.value * exchage);
             newRow.appendChild(valueCell);
             row.parentElement.appendChild(newRow);
@@ -104,6 +105,7 @@ function handleTotalPage(e) {
 }
 
 function handleSearchPage(e) {
+    console.debug('search page');
     for (var i = 0; i < e.length; i++) {
         if (elementHandled(e[i])) {
             continue;
@@ -113,7 +115,7 @@ function handleSearchPage(e) {
         if (price && parent) {
             var exchange = getExchangeByCurrency(price.currency);
             var newDiv = document.createElement('div');
-            newDiv.style = 'color: #656565; font-weight: bold; padding: 3px 0;';
+            newDiv.style = 'color: #656565 !important; font-weight: bold !important; padding: 3px 0 !important;';
             newDiv.innerHTML = formatPrice(price.value * exchange);
             parent.appendChild(newDiv);
         }
@@ -122,10 +124,9 @@ function handleSearchPage(e) {
 }
 
 function handleItemPage(e) {
+    console.debug('item page');
     if (!elementHandled(e)) {
-        var row = null;
         var row = getParentElement(e, 'tr');
-
         if (row) {
             var mainPrice = extractPrice(e);
             var shippingPrice = null;
@@ -134,19 +135,44 @@ function handleItemPage(e) {
                 shippingPrice = extractPrice(shipping);
             }
 
+            var cellCount = row.querySelectorAll('td').length;
+
             // Create row
             var rowSpace = document.createElement('tr');
-            rowSpace.style = 'height: 5px;';
+            rowSpace.style = 'height: 5px !important;';
+            
             var newRow = document.createElement('tr');
             var cell = document.createElement('td');
+
             cell.innerHTML = '<span class="a-color-secondary a-size-base a-text-right a-nowrap">' + _myCurrency + ':</span>';
-            cell.style = 'padding: 5px 0;';
+            cell.style = 'padding: 5px 0 !important;';
             var cell2 = document.createElement('td');
-            cell2.setAttribute('colspan', '2');
-            cell2.style = 'padding: 5px 0; padding-left: 3px;';
+            if (cellCount > 1) {
+                cell2.setAttribute('colspan', cellCount + '');
+            }
+            cell2.style = 'padding: 5px 0 !important; padding-left: 3px !important;';
+            
             newRow.appendChild(cell);
             newRow.appendChild(cell2);
-            row.parentElement.insertBefore(newRow, row.nextSibling);
+
+            var toInsert = null;
+            if (cellCount > 1) {
+                toInsert = newRow;
+            } else {
+                // Only one cell, create container for our row
+                var containerRow = document.createElement('tr');
+                var containerCell = document.createElement('td');
+                var containerTable = document.createElement('table');
+                var tableBody = document.createElement('tbody');
+                tableBody.appendChild(newRow);
+                containerTable.appendChild(tableBody);
+                containerCell.appendChild(containerTable);
+                containerRow.appendChild(containerCell);
+                cell.style.width = '25px';
+                toInsert = containerRow;
+            }
+
+            row.parentElement.insertBefore(toInsert, row.nextSibling);
 
             var exchange = getExchangeByCurrency(mainPrice.currency);
             var mainPriceConverted = exchange * mainPrice.value;
@@ -160,8 +186,8 @@ function handleItemPage(e) {
             var convertedPrice = document.createElement('span');
             convertedPrice.innerHTML = '' + formatPrice(mainPriceConverted);
             if (shippingPriceConverted) {
-                convertedPrice.innerHTML += ' + ' + formatPrice(shippingPriceConverted)
-                    + ' = ' + formatPrice(mainPriceConverted + shippingPriceConverted);
+                convertedPrice.innerHTML += ' + ' + formatPrice(shippingPriceConverted) +
+                    ' = ' + formatPrice(mainPriceConverted + shippingPriceConverted);
             }
             convertedPrice.style = 'color: #505050; font-weight: bold;';
             cell2.appendChild(convertedPrice);
@@ -211,17 +237,26 @@ function getSettings(then) {
 }
 
 function getExchangeByCurrency(currency) {
-    var key = _keyByGrapheme[currency];
-    var ex = _exchange.rates[_myCurrency];
-    if (key !== 'USD') {
-        ex /= _exchange.rates[key];
-    }
-    return ex;
+    var pageCurrency = _exchange[_keyByGrapheme[currency]].value;
+    var myCurrency = _exchange[_myCurrency.toUpperCase()].value;
+    return pageCurrency / myCurrency;
 }
 
 function extractPrice(element) {
-    var price = element.innerHTML.match(/[\d,.]+/g).join('.');
-    var format = _currencyRegex.exec(element.innerHTML);
+    var relevant = element.querySelectorAll(':not(.a-text-strike)');
+    var textToMatch = '';
+    for (var i = 0; i < relevant.length; i++) {
+        textToMatch += ' ' + relevant[i].innerHTML;
+    }
+    if (textToMatch.trim().length === 0) {
+        return null;
+    }
+    var price = textToMatch.match(/[\d,.]+/g);
+    if (!price) {
+        return null;
+    }
+    price = price.join('.');
+    var format = _currencyRegex.exec(textToMatch);
     if (!format || format.length === 0) {
         return null;
     }
@@ -239,15 +274,15 @@ function extractPrice(element) {
 }
 
 function formatPrice(price) {
-    var format = _formats[_myCurrency];
-    var template = '1$';
-    var symbol = _myCurrency;
-    if (format.symbol) {
-        template = format.symbol.template;
-        symbol = format.symbol.grapheme;
-    }
-    var t = template.replace('$', symbol);
-    var p = price.toFixed(format.fractionSize || 2);
+    var format = _formats[_myCurrency] || {
+        symbol: {
+            grapheme: _myCurrency,
+            template: '1$',
+            fractionSize: 2
+        }
+    };
+    var t = format.symbol.template.replace('$', format.symbol.grapheme);
+    var p = price.toFixed(format.symbol.fractionSize);
     var pSplit = p.split('.');
     pSplit[0] = pSplit[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return t.replace('1', pSplit.join('.'));
