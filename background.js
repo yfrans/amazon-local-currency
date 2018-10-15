@@ -76,7 +76,7 @@ function getExchange(cb, renew) {
             }
         });
     } else {
-        jx('http://www.boi.org.il/currency.xml', true, function (resp) {
+        jx('https://www.boi.org.il/currency.xml', true, function (resp) {
             var now = new Date();
             var obj = {
                 lastUpdate: new Date(resp.getElementsByTagName('LAST_UPDATE')[0].textContent + ' ' + now.getHours() + ':' + now.getMinutes()).getTime(),
