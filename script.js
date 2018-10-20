@@ -1,5 +1,5 @@
 var _exchange = null;
-var _formats = {"USD":{"name":"US Dollar","fractionSize":2,"symbol":{"grapheme":"$","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"$","template":"$1","rtl":false}},"EUR":{"name":"Euro","fractionSize":2,"symbol":{"grapheme":"€","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"€","template":"$1","rtl":false}},"GBP":{"name":"Pound Sterling","fractionSize":2,"symbol":{"grapheme":"£","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"£","template":"$1","rtl":false}},"ILS":{"name":"New Israeli Sheqel","fractionSize":2,"symbol":{"grapheme":"₪","template":"$1","rtl":false},"uniqSymbol":{"grapheme":"₪","template":"$1","rtl":false}}};
+var _formats = {'USD':{'name':'US Dollar','fractionSize':2,'symbol':{'grapheme':'$','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'$','template':'$1','rtl':false}},'EUR':{'name':'Euro','fractionSize':2,'symbol':{'grapheme':'€','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'€','template':'$1','rtl':false}},'GBP':{'name':'Pound Sterling','fractionSize':2,'symbol':{'grapheme':'£','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'£','template':'$1','rtl':false}},'ILS':{'name':'New Israeli Sheqel','fractionSize':2,'symbol':{'grapheme':'₪','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'₪','template':'$1','rtl':false}}};
 var _myCurrency = null;
 var _handlingPage = false;
 var _ourDataAttribute = 'data-price-convert';
@@ -64,7 +64,7 @@ function getTotalPageElement() {
 }
 
 function getSearchPageElement() {
-    var selectors = ['.s-result-item .s-price', '.sx-price'];
+    var selectors = ['.sx-price', '.s-result-item .s-price'];
     for (var i = 0; i < selectors.length; i++) {
         var e = document.querySelectorAll(selectors[i]);
         if (e.length > 0) {
@@ -86,45 +86,70 @@ function getItemPageElement() {
 }
 
 function handleTotalPage(e) {
-    console.debug('total page');
     if (!elementHandled(e)) {
         var row = getParentElement(e, 'tr');
         var price = extractPrice(e);
         if (row && price) {
-            var exchage = getExchangeByCurrency(price.currency);
-            var newRow = document.createElement('tr');
-            var valueCell = document.createElement('td');
-            valueCell.setAttribute('colspan', '2');
-            valueCell.style = 'color: #505050 !important; font-weight: bold !important; text-align: right !important;';
-            valueCell.innerHTML = formatPrice(price.value * exchage);
-            newRow.appendChild(valueCell);
-            row.parentElement.appendChild(newRow);
+            getExchangeByCurrency(price.currency, function (exchange) {
+                var newRow = document.createElement('tr');
+                var valueCell = document.createElement('td');
+                valueCell.setAttribute('colspan', '2');
+                valueCell.style = 'color: #505050 !important; font-weight: bold !important; text-align: right !important;';
+                valueCell.innerHTML = formatPrice(price.value * exchange);
+                newRow.appendChild(valueCell);
+                row.parentElement.appendChild(newRow);
+                _handlingPage = false;
+            });
+        } else {
+            _handlingPage = false;
         }
+    } else {
+        _handlingPage = false;
     }
-    _handlingPage = false;
 }
 
 function handleSearchPage(e) {
-    console.debug('search page');
+    if (e.length === 0) {
+        _handlingPage = false;
+        return;
+    }
+
+    var setHandlingPage = callAfter(e.length, function () {
+        _handlingPage = false;
+    });
+
     for (var i = 0; i < e.length; i++) {
         if (elementHandled(e[i])) {
+            setHandlingPage();
             continue;
         }
         var price = extractPrice(e[i]);
         var parent = getParentElement(e[i], 'div');
         if (price && parent) {
-            var exchange = getExchangeByCurrency(price.currency);
-            var newDiv = document.createElement('div');
-            newDiv.style = 'color: #656565 !important; font-weight: bold !important; padding: 3px 0 !important;';
-            newDiv.innerHTML = formatPrice(price.value * exchange);
-            parent.appendChild(newDiv);
+            (function (price, parent) {
+                getExchangeByCurrency(price.currency, function (exchange) {
+                    var newDiv = document.createElement('div');
+                    newDiv.style = 'color: #656565 !important; font-weight: bold !important; padding: 3px 0 !important;';
+                    newDiv.innerHTML = formatPrice(price.value * exchange);
+                    parent.appendChild(newDiv);
+                    setHandlingPage();
+                });
+            })(price, parent);
+        } else {
+            setHandlingPage();
         }
     }
-    _handlingPage = false;
+}
+
+function callAfter(times, call) {
+    return function() {
+        if (--times < 1) {
+            return call.apply(this, null);
+        }
+    };
 }
 
 function handleItemPage(e) {
-    console.debug('item page');
     if (!elementHandled(e)) {
         var row = getParentElement(e, 'tr');
         if (row) {
@@ -174,27 +199,30 @@ function handleItemPage(e) {
 
             row.parentElement.insertBefore(toInsert, row.nextSibling);
 
-            var exchange = getExchangeByCurrency(mainPrice.currency);
-            var mainPriceConverted = exchange * mainPrice.value;
-            var shippingPriceConverted = null;
-        
-            if (shippingPrice) {
-                var ex = getExchangeByCurrency(shippingPrice.currency);
-                shippingPriceConverted = ex * shippingPrice.value;
-            }
+            getExchangeByCurrency(mainPrice.currency, function (exchange) {
+                var mainPriceConverted = exchange * mainPrice.value;
+                var shippingPriceConverted = null;
 
-            var convertedPrice = document.createElement('span');
-            convertedPrice.innerHTML = '' + formatPrice(mainPriceConverted);
-            if (shippingPriceConverted) {
-                convertedPrice.innerHTML += ' + ' + formatPrice(shippingPriceConverted) +
-                    ' = ' + formatPrice(mainPriceConverted + shippingPriceConverted);
-            }
-            convertedPrice.style = 'color: #505050; font-weight: bold;';
-            cell2.appendChild(convertedPrice);
+                if (shippingPrice) {
+                    shippingPriceConverted = exchange * shippingPrice.value;
+                }
+    
+                var convertedPrice = document.createElement('span');
+                convertedPrice.innerHTML = '' + formatPrice(mainPriceConverted);
+                if (shippingPriceConverted) {
+                    convertedPrice.innerHTML += ' + ' + formatPrice(shippingPriceConverted) +
+                        ' = ' + formatPrice(mainPriceConverted + shippingPriceConverted);
+                }
+                convertedPrice.style = 'color: #505050; font-weight: bold;';
+                cell2.appendChild(convertedPrice);
+                _handlingPage = false;
+            });
+        } else {
+            _handlingPage = false;
         }
+    } else {
+        _handlingPage = false;
     }
-
-    _handlingPage = false;
 }
 
 function elementHandled(e) {
@@ -224,22 +252,16 @@ function getSettings(then) {
         });
         return;
     }
-
-    if (!_exchange) {
-        chrome.runtime.sendMessage({ action: 'getExchange' }, function(v) {
-            _exchange = v;
-            getSettings.apply(this, [ then ]);
-        });
-        return;
-    }
-
     then.apply(null);
 }
 
-function getExchangeByCurrency(currency) {
-    var pageCurrency = _exchange[_keyByGrapheme[currency]].value;
-    var myCurrency = _exchange[_myCurrency.toUpperCase()].value;
-    return pageCurrency / myCurrency;
+function getExchangeByCurrency(currency, cb) {
+    var pageCurrency = _keyByGrapheme[currency];
+    var myCurrency = _myCurrency.toUpperCase();
+
+    chrome.runtime.sendMessage({ action: 'getExchange', params: [ pageCurrency, myCurrency ]}, function (result) {
+        cb(result);
+    });
 }
 
 function extractPrice(element) {
@@ -251,7 +273,6 @@ function extractPrice(element) {
         textToMatch += ' ' + relevant[i].innerHTML;
     }
 
-    console.log(element, relevant, textToMatch);
     if (textToMatch.trim().length === 0) {
         return null;
     }

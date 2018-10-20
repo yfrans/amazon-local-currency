@@ -1,9 +1,9 @@
-var _exchange = null;
+var _currencies = null;
 var _settings = null;
 var _messageHidingInterval = null;
 
-chrome.runtime.sendMessage({ action: 'getExchange' }, function(v) {
-    _exchange = v;
+chrome.runtime.sendMessage({ action: 'getAllCurrencies' }, function(v) {
+    _currencies = v;
     ready();
 });
 
@@ -27,12 +27,12 @@ document.getElementById('save').onclick = function () {
 };
 
 function ready() {
-    if (!_exchange || !_settings) {
+    if (!_currencies || !_settings) {
         return;
     }
 
-    for (var currency in _exchange) {
-        if (!_exchange.hasOwnProperty(currency) || currency.length !== 3) {
+    for (var currency in _currencies) {
+        if (!_currencies.hasOwnProperty(currency)) {
             continue;
         }
 

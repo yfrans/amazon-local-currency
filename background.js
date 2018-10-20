@@ -2,7 +2,8 @@
 var _remoteActions = {
     'getExchange': getExchange,
     'getSettings': getSettings,
-    'setSettings': setSettings
+    'setSettings': setSettings,
+    'getAllCurrencies': getAllCurrencies
 };
 
 // Helpers
@@ -54,68 +55,46 @@ function needUpdate(value) {
 }
 // --
 
-// Remote actions
-function getExchange(cb, renew) {
-    if (!renew) {
-        chrome.storage.sync.get('exchange', function (items) {
-            if (!items || !items.exchange) {
-                getExchange(cb, true);
-            } else {
-                var v = items.exchange;
-                if (v.lastUpdate && v.lastCheck) {
-                    if (!needUpdate(v)) {
-                        //console.log('NO UPDATE');
-                        cb(v);
-                    } else {
-                        //console.log('UPDATING');
-                        getExchange(cb, true);
-                    }
-                } else {
-                    getExchange(cb, true);
-                }
-            }
-        });
-    } else {
-        jx('https://www.boi.org.il/currency.xml', true, function (resp) {
-            var now = new Date();
-            var obj = {
-                lastUpdate: new Date(resp.getElementsByTagName('LAST_UPDATE')[0].textContent + ' ' + now.getHours() + ':' + now.getMinutes()).getTime(),
-                lastCheck: now.getTime(),
-                ILS: {
-                    name: 'Israeli New Shekel',
-                    value: 1,
-                    unit: 1
-                }
-            };
-            var elements = resp.getElementsByTagName('CURRENCY');
-            for (var i = 0; i < elements.length; i++) {
-                var e = new XmlElementParser(elements[i]);
-                obj[e.getNodeValue('CURRENCYCODE')] = {
-                    name: e.getNodeValue('NAME'),
-                    value: +e.getNodeValue('RATE'),
-                    unit: +e.getNodeValue('UNIT')
+function getAllCurrencies(cb) {
+    jx('https://free.currencyconverterapi.com/api/v6/currencies', function (resp) {
+        cb(JSON.parse(resp).results);
+    });
+}
+
+function getExchange(cb, from, to) {
+    var pair = from.toUpperCase() + '_' + to.toUpperCase();
+    var renew = false;
+    var key = 'exchange_' + pair;
+    chrome.storage.sync.get(key, function (items) {
+        console.log('storage items: ', items);
+        if (!items || !items[key] || isNaN(items[key].lastCheck)) {
+            renew = true;
+        } else {
+            var v = items[key];
+            var today = new Date().getTime();
+            console.log('lastcheck: ' + (today - v.lastCheck) / (60 * 60 * 1000));
+            renew = !v.lastCheck || today < v.lastCheck || (new Date().getTime() - today) / (60 * 60 * 1000) >= 1;
+        }
+
+        if (renew) {
+            console.log('RENEW! (' + pair + ')');
+            jx('https://free.currencyconverterapi.com/api/v6/convert?q=' + pair + '&compact=ultra', false, function (resp) {
+                var v = JSON.parse(resp)[pair];
+                var toSave = {};
+                toSave[key] = {
+                    lastCheck: new Date().getTime(),
+                    value: v
                 };
-            }
-            //console.log('NEW: ', obj);
-            chrome.storage.sync.set({ 'exchange': obj }, function () {
-                cb(obj);
+                chrome.storage.sync.set(toSave, function () {
+                    cb(v);
+                });
             });
-        });
-    }
+        } else {
+            console.log('CACHE! (' + pair + ')');
+            cb(items[key].value);
+        }
+    });
 }
-
-function XmlElementParser(xmlElement) {
-    this.xmlElement = xmlElement;
-}
-
-XmlElementParser.prototype.getNodeValue = function (nodeName) {
-    var e = this.xmlElement.getElementsByTagName(nodeName);
-    if (e && e.length > 0) {
-        return e[0].textContent;
-    } else {
-        return null;
-    }
-};
 
 function getSettings(cb) {
     chrome.storage.sync.get('settings', function (items) {
