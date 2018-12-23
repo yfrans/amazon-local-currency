@@ -72,8 +72,10 @@ function getExchange(cb, from, to) {
         } else {
             var v = items[key];
             var today = new Date().getTime();
-            console.log('lastcheck: ' + (today - v.lastCheck) / (60 * 60 * 1000));
-            renew = !v.lastCheck || today < v.lastCheck || (new Date().getTime() - today) / (60 * 60 * 1000) >= 1;
+            console.log('lastcheck: ' + new Date(v.lastCheck));
+            console.log('now: ' + new Date(today));
+            console.log('diff: ' + (today - v.lastCheck) / (60 * 60 * 1000));
+            renew = !v.lastCheck || today < v.lastCheck || (today - v.lastCheck) / (60 * 60 * 1000) >= 1;
         }
 
         if (renew) {

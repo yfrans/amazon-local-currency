@@ -157,7 +157,15 @@ function handleItemPage(e) {
             var shippingPrice = null;
             var shipping = row.querySelector('span.a-size-base.a-color-secondary');
             if (shipping) {
+                console.log('found shipping');
                 shippingPrice = extractPrice(shipping);
+            } else {
+                var parentTable = getParentElement(row, 'table');
+                shipping = parentTable.querySelector('span.a-size-base.a-color-secondary');
+                if (shipping) {
+                    console.log('found shipping in parent table');
+                    shippingPrice = extractPrice(shipping);
+                }
             }
 
             var cellCount = row.querySelectorAll('td').length;
