@@ -56,7 +56,7 @@ function needUpdate(value) {
 // --
 
 function getAllCurrencies(cb) {
-    jx('https://free.currencyconverterapi.com/api/v6/currencies', function (resp) {
+    jx('https://free.currencyconverterapi.com/api/v6/currencies?apiKey=4d1212bdebd77e8094b6', function (resp) {
         cb(JSON.parse(resp).results);
     });
 }
@@ -80,7 +80,7 @@ function getExchange(cb, from, to) {
 
         if (renew) {
             console.log('RENEW! (' + pair + ')');
-            jx('https://free.currencyconverterapi.com/api/v6/convert?q=' + pair + '&compact=ultra', false, function (resp) {
+            jx('https://free.currencyconverterapi.com/api/v6/convert?apiKey=4d1212bdebd77e8094b6&q=' + pair + '&compact=ultra', false, function (resp) {
                 var v = JSON.parse(resp)[pair];
                 var toSave = {};
                 toSave[key] = {
