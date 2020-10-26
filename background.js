@@ -6,95 +6,54 @@ var _remoteActions = {
     'getAllCurrencies': getAllCurrencies
 };
 
-// Helpers
-function jx(url, xml, callback) {
-    if (typeof xml === 'function') {
-        callback = xml;
-        xml = false;
-    }
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            callback(xml ? xmlhttp.responseXML : xmlhttp.responseText);
-        }
-    };
-    xmlhttp.open('GET', url, true);
-    xmlhttp.send();
-}
-
-function jxp(url, params, xml, callback) {
-    if (typeof xml === 'function') {
-        callback = xml;
-        xml = false;
-    }
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            callback(xml ? xmlhttp.responseXML : xmlhttp.responseText);
-        }
-    };
-    xmlhttp.open('POST', url, true);
-    xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    xmlhttp.send(params);
-}
-
-function needUpdate(value) {
-    var lastUpdate = new Date(value.lastUpdate);
-    var lastCheck = new Date(value.lastCheck);
-    var today = new Date();
-
-    //console.log('check: ', today, lastCheck, lastUpdate);
-
-    if (today < lastUpdate) {
-        return true;
-    } else {
-        var hourDiff = (today - lastCheck) / (60 * 60 * 1000);
-        //console.log(hourDiff);
-        return hourDiff > 4;
-    }
-}
-// --
-
-function getAllCurrencies(cb) {
-    jx('https://free.currencyconverterapi.com/api/v6/currencies?apiKey=4d1212bdebd77e8094b6', function (resp) {
-        cb(JSON.parse(resp).results);
+async function getExchangeValues() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get('exchange_data', async function (exchange) {
+            console.log('storage: ', exchange);
+            if (!exchange || isNaN(exchange.last_update) || (new Date() - exchange.last_update) >= 1000 * 60 * 60) {
+                try {
+                    let resp = await fetch('https://amazon-local-currency.herokuapp.com/').then();
+                    exchange.last_update = new Date();
+                    exchange.rates = await resp.json();
+                    chrome.storage.local.set({ exchange_data: exchange }, function () {});
+                } catch (ex) {
+                    console.log('Error while fetching currencies', ex);
+                }
+            }
+            resolve(exchange);
+        });
     });
 }
 
+function getAllCurrencies(cb) {
+    console.log('Get all currencies');
+    getExchangeValues().then(v => cb(v.rates));
+}
+
 function getExchange(cb, from, to) {
-    var pair = from.toUpperCase() + '_' + to.toUpperCase();
-    var renew = false;
-    var key = 'exchange_' + pair;
-    chrome.storage.sync.get(key, function (items) {
-        console.log('storage items: ', items);
-        if (!items || !items[key] || isNaN(items[key].lastCheck)) {
-            renew = true;
-        } else {
-            var v = items[key];
-            var today = new Date().getTime();
-            console.log('lastcheck: ' + new Date(v.lastCheck));
-            console.log('now: ' + new Date(today));
-            console.log('diff: ' + (today - v.lastCheck) / (60 * 60 * 1000));
-            renew = !v.lastCheck || today < v.lastCheck || (today - v.lastCheck) / (60 * 60 * 1000) >= 1;
+    getExchangeValues().then(exchange => {
+        console.log('Last exchange update: ', exchange.last_update);
+        let from_exchange = { rate: 1 };
+        if (from !== 'USD') {
+            from_exchange = exchange.rates.find(x => x.currency_code === from);
+        }
+        let to_exchange = exchange.rates.find(x => x.currency_code === to);
+
+        if (!from_exchange) {
+            console.log(`Exchange ${from} not found!`);
+            return;
+        }
+        if (!to_exchange) {
+            console.log(`Exchange ${to} not found!`);
+            return;
         }
 
-        if (renew) {
-            console.log('RENEW! (' + pair + ')');
-            jx('https://free.currencyconverterapi.com/api/v6/convert?apiKey=4d1212bdebd77e8094b6&q=' + pair + '&compact=ultra', false, function (resp) {
-                var v = JSON.parse(resp)[pair];
-                var toSave = {};
-                toSave[key] = {
-                    lastCheck: new Date().getTime(),
-                    value: v
-                };
-                chrome.storage.sync.set(toSave, function () {
-                    cb(v);
-                });
-            });
-        } else {
-            console.log('CACHE! (' + pair + ')');
-            cb(items[key].value);
-        }
+        console.log(`From ${from} = ${from_exchange.rate}`);
+        console.log(`To ${to} = ${to_exchange.rate}`);
+        
+        let v = to_exchange.rate / from_exchange.rate;
+        console.log(`Exchange for ${from}-${to} is ${v}`);
+        cb(v);
     });
 }
 

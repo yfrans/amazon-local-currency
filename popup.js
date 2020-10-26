@@ -31,17 +31,13 @@ function ready() {
         return;
     }
 
-    for (var currency in _currencies) {
-        if (!_currencies.hasOwnProperty(currency)) {
-            continue;
-        }
-
+    _currencies.forEach(c => {
         var opt = document.createElement('option');
-        opt.setAttribute('value', currency);
-        opt.innerHTML = currency;
-        if (_settings === currency) {
+        opt.setAttribute('value', c.currency_code);
+        opt.innerHTML = `${c.currency_code} (${c.currency_name})`;
+        if (_settings === c.currency_code) {
             opt.setAttribute('selected', 'selected');
         }
         document.getElementById('currency').appendChild(opt);
-    }
+    });
 }

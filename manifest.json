@@ -3,7 +3,7 @@
     "name": "Amazon Local Currency",
     "description": "Display Amazon prices in your local currency.",
     "author": "Yossi Frances",
-    "version": "0.8",
+    "version": "0.9",
     "icons": {
         "16": "icons/16.png",
         "32": "icons/32.png",
@@ -32,7 +32,6 @@
     "permissions": [
         "activeTab",
         "storage",
-        "http://free.currencyconverterapi.com/",
-        "https://free.currencyconverterapi.com/"
+        "https://amazon-local-currency.herokuapp.com/"
     ]
 }
