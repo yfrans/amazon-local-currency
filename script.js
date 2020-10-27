@@ -1,5 +1,5 @@
 var _exchange = null;
-var _formats = {'USD':{'name':'US Dollar','fractionSize':2,'symbol':{'grapheme':'$','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'$','template':'$1','rtl':false}},'EUR':{'name':'Euro','fractionSize':2,'symbol':{'grapheme':'€','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'€','template':'$1','rtl':false}},'GBP':{'name':'Pound Sterling','fractionSize':2,'symbol':{'grapheme':'£','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'£','template':'$1','rtl':false}},'ILS':{'name':'New Israeli Sheqel','fractionSize':2,'symbol':{'grapheme':'₪','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'₪','template':'$1','rtl':false}}};
+var _formats = {'USD':{'name':'US Dollar','fractionSize':2,'symbol':{'grapheme':'$','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'$','template':'$1','rtl':false}},'EUR':{'name':'Euro','fractionSize':2,'symbol':{'grapheme':'€','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'€','template':'$1','rtl':false}},'GBP':{'name':'Pound Sterling','fractionSize':2,'symbol':{'grapheme':'£','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'£','template':'$1','rtl':false}},'ILS':{'name':'New Israeli Sheqel','fractionSize':2,'symbol':{'grapheme':'₪','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'₪','template':'$1','rtl':false}},'JPY':{'name':'Yen','fractionSize':2,'symbol':{'grapheme':'￥','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'￥','template':'$1','rtl':false}}};
 var _myCurrency = null;
 var _handlingPage = false;
 var _ourDataAttribute = 'data-price-convert';
@@ -208,6 +208,7 @@ function handleItemPage(e) {
             row.parentElement.insertBefore(toInsert, row.nextSibling);
 
             getExchangeByCurrency(mainPrice.currency, function (exchange) {
+                console.log('local-currency:', exchange, mainPrice.value);
                 var mainPriceConverted = exchange * mainPrice.value;
                 var shippingPriceConverted = null;
 
@@ -284,17 +285,21 @@ function extractPrice(element) {
     if (textToMatch.trim().length === 0) {
         return null;
     }
+
     var price = textToMatch.match(/[\d,.]+/g);
     if (!price) {
         return null;
     }
+    
     price = price.join('.');
     var format = _currencyRegex.exec(textToMatch);
     if (!format || format.length === 0) {
         return null;
     }
     var newPrice = null;
-    if (price.indexOf('.') < price.indexOf(',')) {
+    let dotIndex = price.indexOf('.');
+    let comIndex = price.indexOf(',');
+    if (dotIndex > -1 && dotIndex < comIndex) {
         newPrice = price.replace('.', '').replace(',', '.');
     } else {
         newPrice = price.replace(',', '');
