@@ -1,5 +1,5 @@
 var _exchange = null;
-var _formats = {'USD':{'name':'US Dollar','fractionSize':2,'symbol':{'grapheme':'$','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'$','template':'$1','rtl':false}},'EUR':{'name':'Euro','fractionSize':2,'symbol':{'grapheme':'€','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'€','template':'$1','rtl':false}},'GBP':{'name':'Pound Sterling','fractionSize':2,'symbol':{'grapheme':'£','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'£','template':'$1','rtl':false}},'ILS':{'name':'New Israeli Sheqel','fractionSize':2,'symbol':{'grapheme':'₪','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'₪','template':'$1','rtl':false}},'JPY':{'name':'Yen','fractionSize':2,'symbol':{'grapheme':'￥','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'￥','template':'$1','rtl':false}}};
+var _formats = {'USD':{'name':'US Dollar','fractionSize':2,'symbol':{'grapheme':'$','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'$','template':'$1','rtl':false}},'EUR':{'name':'Euro','fractionSize':2,'symbol':{'grapheme':'€','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'€','template':'$1','rtl':false}},'GBP':{'name':'Pound Sterling','fractionSize':2,'symbol':{'grapheme':'£','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'£','template':'$1','rtl':false}},'ILS':{'name':'New Israeli Sheqel','fractionSize':2,'symbol':{'grapheme':'₪','template':'$1','rtl':false},'uniqSymbol':{'grapheme':'₪','template':'$1','rtl':false}},'JPY':{'name':'Yen','fractionSize':2,'symbol':{'grapheme':['¥','￥'],'template':'$1','rtl':false},'uniqSymbol':{'grapheme':'￥','template':'$1','rtl':false}}};
 var _myCurrency = null;
 var _handlingPage = false;
 var _ourDataAttribute = 'data-price-convert';
@@ -15,11 +15,16 @@ for (var format in _formats) {
         _keyByGrapheme[format] = format;
     }
     if (_formats[format].symbol) {
-        var g = _formats[format].symbol.grapheme;
-        if (!/\w/.test(g) && _currencyRegex.indexOf(g) === -1) {
-            _currencyRegex.push('\\' + g);
-            _keyByGrapheme[g] = format;
+        var graph = _formats[format].symbol.grapheme;
+        if (!Array.isArray(graph)) {
+            graph = [ graph ];
         }
+        graph.forEach(g => {
+            if (!/\w/.test(g) && _currencyRegex.indexOf(g) === -1) {
+                _currencyRegex.push('\\' + g);
+                _keyByGrapheme[g] = format;
+            }
+        });
     }
 }
 
@@ -296,6 +301,7 @@ function extractPrice(element) {
     if (!format || format.length === 0) {
         return null;
     }
+
     var newPrice = null;
     let dotIndex = price.indexOf('.');
     let comIndex = price.indexOf(',');
@@ -319,7 +325,7 @@ function formatPrice(price) {
             fractionSize: 2
         }
     };
-    var t = format.symbol.template.replace('$', format.symbol.grapheme);
+    var t = format.symbol.template.replace('$', Array.isArray(format.symbol.grapheme) ? format.symbol.grapheme[0] : format.symbol.grapheme);
     var p = price.toFixed(format.symbol.fractionSize);
     var pSplit = p.split('.');
     pSplit[0] = pSplit[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
