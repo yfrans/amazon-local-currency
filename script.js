@@ -58,7 +58,7 @@ var _checks = [
 })();
 
 function getTotalPageElement() {
-    var selectors = ['.order-summary-grand-total + tr:last-child td:last-child strong', '#subtotals table tr:last-of-type td.a-text-bold:last-child'];
+    var selectors = ['.order-summary-grand-total + tr:last-child td:last-child', '#subtotals table tr:last-of-type td.a-text-bold:last-child'];
     for (var i = 0; i < selectors.length; i++) {
         var e = document.querySelector(selectors[i]);
         if (e) {
@@ -178,7 +178,7 @@ function handleItemPage(e) {
             // Create row
             var rowSpace = document.createElement('tr');
             rowSpace.style = 'height: 5px !important;';
-            
+
             var newRow = document.createElement('tr');
             var cell = document.createElement('td');
 
@@ -189,7 +189,7 @@ function handleItemPage(e) {
                 cell2.setAttribute('colspan', cellCount + '');
             }
             cell2.style = 'padding: 5px 0 !important; padding-left: 3px !important;';
-            
+
             newRow.appendChild(cell);
             newRow.appendChild(cell2);
 
@@ -220,7 +220,7 @@ function handleItemPage(e) {
                 if (shippingPrice) {
                     shippingPriceConverted = exchange * shippingPrice.value;
                 }
-    
+
                 var convertedPrice = document.createElement('span');
                 convertedPrice.innerHTML = '' + formatPrice(mainPriceConverted);
                 if (shippingPriceConverted) {
@@ -295,7 +295,7 @@ function extractPrice(element) {
     if (!price) {
         return null;
     }
-    
+
     price = price.join('.');
     var format = _currencyRegex.exec(textToMatch);
     if (!format || format.length === 0) {
@@ -308,7 +308,7 @@ function extractPrice(element) {
     if (dotIndex > -1 && dotIndex < comIndex) {
         newPrice = price.replace('.', '').replace(',', '.');
     } else {
-        newPrice = price.replace(',', '');
+        newPrice = price.replace(',', '.');
     }
     newPrice = +newPrice;
     if (isNaN(newPrice)) {
