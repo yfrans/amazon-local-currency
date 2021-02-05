@@ -34,7 +34,7 @@ function ready() {
     _currencies.forEach(c => {
         var opt = document.createElement('option');
         opt.setAttribute('value', c.currency_code);
-        opt.innerHTML = `${c.currency_code} (${c.currency_name})`;
+        opt.innerText = `${c.currency_code} (${c.currency_name})`;
         if (_settings === c.currency_code) {
             opt.setAttribute('selected', 'selected');
         }

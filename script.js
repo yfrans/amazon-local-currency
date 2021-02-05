@@ -100,7 +100,7 @@ function handleTotalPage(e) {
                 var valueCell = document.createElement('td');
                 valueCell.setAttribute('colspan', '2');
                 valueCell.style = 'color: #505050 !important; font-weight: bold !important; text-align: right !important;';
-                valueCell.innerHTML = formatPrice(price.value * exchange);
+                valueCell.appendChild(document.createTextNode(formatPrice(price.value * exchange)));
                 newRow.appendChild(valueCell);
                 row.parentElement.appendChild(newRow);
                 _handlingPage = false;
@@ -135,7 +135,7 @@ function handleSearchPage(e) {
                 getExchangeByCurrency(price.currency, function (exchange) {
                     var newDiv = document.createElement('div');
                     newDiv.style = 'color: #656565 !important; font-weight: bold !important; padding: 3px 0 !important;';
-                    newDiv.innerHTML = formatPrice(price.value * exchange);
+                    newDiv.innerText = formatPrice(price.value * exchange);
                     parent.appendChild(newDiv);
                     setHandlingPage();
                 });
@@ -182,7 +182,10 @@ function handleItemPage(e) {
             var newRow = document.createElement('tr');
             var cell = document.createElement('td');
 
-            cell.innerHTML = '<span class="a-color-secondary a-size-base a-text-right a-nowrap">' + _myCurrency + ':</span>';
+            let cellSpan = document.createElement('span');
+            cellSpan.className = 'a-color-secondary a-size-base a-text-right a-nowrap';
+            cellSpan.innerText = _myCurrency + ':';
+            cell.appendChild(cellSpan);
             cell.style = 'padding: 5px 0 !important;';
             var cell2 = document.createElement('td');
             if (cellCount > 1) {
@@ -222,9 +225,9 @@ function handleItemPage(e) {
                 }
 
                 var convertedPrice = document.createElement('span');
-                convertedPrice.innerHTML = '' + formatPrice(mainPriceConverted);
+                convertedPrice.innerText = '' + formatPrice(mainPriceConverted);
                 if (shippingPriceConverted) {
-                    convertedPrice.innerHTML += ' + ' + formatPrice(shippingPriceConverted) +
+                    convertedPrice.innerText += ' + ' + formatPrice(shippingPriceConverted) +
                         ' = ' + formatPrice(mainPriceConverted + shippingPriceConverted);
                 }
                 convertedPrice.style = 'color: #505050; font-weight: bold;';
