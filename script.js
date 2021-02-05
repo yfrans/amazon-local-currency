@@ -291,27 +291,27 @@ function extractPrice(element) {
         return null;
     }
 
+    textToMatch = textToMatch.replaceAll(/&nbsp;/g, ''); // remove space (in .fr)
     var price = textToMatch.match(/[\d,.]+/g);
     if (!price) {
         return null;
     }
 
-    price = price.join('.');
+    // parse currency
     var format = _currencyRegex.exec(textToMatch);
     if (!format || format.length === 0) {
         return null;
     }
 
-    var newPrice = null;
-    let dotIndex = price.indexOf('.');
-    let comIndex = price.indexOf(',');
-    if (dotIndex > -1 && dotIndex < comIndex) {
-        newPrice = price.replace('.', '').replace(',', '.');
-    } else {
-        newPrice = price.replace(',', '.');
+    // parse price
+    newPrice = parsePriceByCountry(price[0], format[0]);
+    if (!newPrice) {
+        return null;
     }
-    newPrice = +newPrice;
-    if (isNaN(newPrice)) {
+
+    // parse currency
+    var format = _currencyRegex.exec(textToMatch);
+    if (!format || format.length === 0) {
         return null;
     }
     return { value: newPrice, currency: format[0] };
@@ -330,4 +330,29 @@ function formatPrice(price) {
     var pSplit = p.split('.');
     pSplit[0] = pSplit[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return t.replace('1', pSplit.join('.'));
+}
+
+function parsePriceByCountry(priceStr, currency) {
+    let site = window.location.host;
+    site = site.toLowerCase();
+    currency = currency.toUpperCase();
+
+    // default for: | .com | .de | .co.uk | co.jp | 
+    let thousandsSeperator = ',';
+    let fractionSeperator = '.';
+
+    // for: | .it | .es | .fr
+    if (site.endsWith('.it') || site.endsWith('.es') || site.endsWith('.fr')) {
+        // avoid for ils in checkout page
+        if (currency != 'ILS') {
+            thousandsSeperator = '.';
+            fractionSeperator = ',';
+        }
+    }
+
+    newPrice = +(priceStr.replace(thousandsSeperator, '').replace(fractionSeperator, '.'));
+    if (isNaN(newPrice)) {
+        return null;
+    }
+    return newPrice;
 }
