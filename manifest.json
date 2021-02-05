@@ -31,7 +31,6 @@
         "default_popup": "popup.html"
     },
     "permissions": [
-        "activeTab",
         "storage",
         "https://amazon-local-currency.herokuapp.com/"
     ]
