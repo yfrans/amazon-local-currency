@@ -11,20 +11,26 @@
         "96": "icons/96.png",
         "128": "icons/128.png"
     },
-    "content_scripts": [{
-        "matches": [
-            "*://*.amazon.com/*",
-            "*://*.amazon.co.uk/*",
-            "*://*.amazon.de/*",
-            "*://*.amazon.es/*",
-            "*://*.amazon.fr/*",
-            "*://*.amazon.it/*",
-            "*://*.amazon.co.jp/*"
-        ],
-        "js": ["script.js"]
-    }],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.amazon.com/*",
+                "*://*.amazon.co.uk/*",
+                "*://*.amazon.de/*",
+                "*://*.amazon.es/*",
+                "*://*.amazon.fr/*",
+                "*://*.amazon.it/*",
+                "*://*.amazon.co.jp/*"
+            ],
+            "js": [
+                "script.js"
+            ]
+        }
+    ],
     "background": {
-        "scripts": ["background.js"],
+        "scripts": [
+            "background.js"
+        ],
         "persistent": false
     },
     "browser_action": {
