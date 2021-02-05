@@ -69,7 +69,7 @@ function getTotalPageElement() {
 }
 
 function getSearchPageElement() {
-    var selectors = ['.sx-price', '.s-result-item .s-price'];
+    var selectors = ['.sx-price', '.s-result-item .a-price:first-child'];
     for (var i = 0; i < selectors.length; i++) {
         var e = document.querySelectorAll(selectors[i]);
         if (e.length > 0) {
@@ -348,6 +348,12 @@ function parsePriceByCountry(priceStr, currency) {
             thousandsSeperator = '.';
             fractionSeperator = ',';
         }
+    }
+
+    // on checkout page, EURO is always with ',' fractionSeperator 
+    if (currency == 'EUR' && window.location.pathname.startsWith('/gp/buy')) {
+        thousandsSeperator = '.';
+        fractionSeperator = ',';
     }
 
     newPrice = +(priceStr.replace(thousandsSeperator, '').replace(fractionSeperator, '.'));
