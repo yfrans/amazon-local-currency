@@ -58,7 +58,7 @@ var _checks = [
 })();
 
 function getTotalPageElement() {
-    var selectors = ['.order-summary-grand-total + tr:last-child td:last-child strong', '#subtotals table tr:last-of-type td.a-text-bold:last-child'];
+    var selectors = ['.order-summary-grand-total + tr:last-child td:last-child', '#subtotals table tr:last-of-type td.a-text-bold:last-child'];
     for (var i = 0; i < selectors.length; i++) {
         var e = document.querySelector(selectors[i]);
         if (e) {
@@ -69,7 +69,7 @@ function getTotalPageElement() {
 }
 
 function getSearchPageElement() {
-    var selectors = ['.sx-price', '.s-result-item .s-price'];
+    var selectors = ['.sx-price', '.s-result-item .a-price:first-child'];
     for (var i = 0; i < selectors.length; i++) {
         var e = document.querySelectorAll(selectors[i]);
         if (e.length > 0) {
@@ -178,7 +178,7 @@ function handleItemPage(e) {
             // Create row
             var rowSpace = document.createElement('tr');
             rowSpace.style = 'height: 5px !important;';
-            
+
             var newRow = document.createElement('tr');
             var cell = document.createElement('td');
 
@@ -189,7 +189,7 @@ function handleItemPage(e) {
                 cell2.setAttribute('colspan', cellCount + '');
             }
             cell2.style = 'padding: 5px 0 !important; padding-left: 3px !important;';
-            
+
             newRow.appendChild(cell);
             newRow.appendChild(cell2);
 
@@ -220,7 +220,7 @@ function handleItemPage(e) {
                 if (shippingPrice) {
                     shippingPriceConverted = exchange * shippingPrice.value;
                 }
-    
+
                 var convertedPrice = document.createElement('span');
                 convertedPrice.innerHTML = '' + formatPrice(mainPriceConverted);
                 if (shippingPriceConverted) {
@@ -291,27 +291,27 @@ function extractPrice(element) {
         return null;
     }
 
+    textToMatch = textToMatch.replaceAll(/&nbsp;/g, ''); // remove space (in .fr)
     var price = textToMatch.match(/[\d,.]+/g);
     if (!price) {
         return null;
     }
-    
-    price = price.join('.');
+
+    // parse currency
     var format = _currencyRegex.exec(textToMatch);
     if (!format || format.length === 0) {
         return null;
     }
 
-    var newPrice = null;
-    let dotIndex = price.indexOf('.');
-    let comIndex = price.indexOf(',');
-    if (dotIndex > -1 && dotIndex < comIndex) {
-        newPrice = price.replace('.', '').replace(',', '.');
-    } else {
-        newPrice = price.replace(',', '');
+    // parse price
+    newPrice = parsePriceByCountry(price[0], format[0]);
+    if (!newPrice) {
+        return null;
     }
-    newPrice = +newPrice;
-    if (isNaN(newPrice)) {
+
+    // parse currency
+    var format = _currencyRegex.exec(textToMatch);
+    if (!format || format.length === 0) {
         return null;
     }
     return { value: newPrice, currency: format[0] };
@@ -330,4 +330,35 @@ function formatPrice(price) {
     var pSplit = p.split('.');
     pSplit[0] = pSplit[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return t.replace('1', pSplit.join('.'));
+}
+
+function parsePriceByCountry(priceStr, currency) {
+    let site = window.location.host;
+    site = site.toLowerCase();
+    currency = currency.toUpperCase();
+
+    // default for: | .com | .de | .co.uk | co.jp | 
+    let thousandsSeperator = ',';
+    let fractionSeperator = '.';
+
+    // for: | .it | .es | .fr
+    if (site.endsWith('.it') || site.endsWith('.es') || site.endsWith('.fr')) {
+        // avoid for ils in checkout page
+        if (currency != 'ILS') {
+            thousandsSeperator = '.';
+            fractionSeperator = ',';
+        }
+    }
+
+    // on checkout page, EURO is always with ',' fractionSeperator 
+    if (currency == 'EUR' && window.location.pathname.startsWith('/gp/buy')) {
+        thousandsSeperator = '.';
+        fractionSeperator = ',';
+    }
+
+    newPrice = +(priceStr.replace(thousandsSeperator, '').replace(fractionSeperator, '.'));
+    if (isNaN(newPrice)) {
+        return null;
+    }
+    return newPrice;
 }
