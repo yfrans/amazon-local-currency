@@ -282,13 +282,7 @@ function getExchangeByCurrency(currency, cb) {
 }
 
 function extractPrice(element) {
-    var relevant = element.childElementCount > 0 ?
-        element.querySelectorAll(':not(.a-text-strike)') : [ element ];
-
-    var textToMatch = '';
-    for (var i = 0; i < relevant.length; i++) {
-        textToMatch += ' ' + relevant[i].innerHTML;
-    }
+    var textToMatch = element.innerHTML;
 
     if (textToMatch.trim().length === 0) {
         return null;
